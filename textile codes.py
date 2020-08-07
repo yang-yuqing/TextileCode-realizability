@@ -52,7 +52,7 @@ class TextileCode:
                     Edgepair_Set.append(Edgepair1)
                     Edgepair_Set.append(Edgepair2)
 
-        # symbol_set = code.split(" ")
+        
 
         h_set = []
         for i in range(j):
@@ -353,19 +353,4 @@ Edgepair_Set = textile.getEdgepair()
 if textile.BasicValidation() == True:
     print(algorithm(Edgepair_Set, i, j, k))
 
-
-
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
+    
