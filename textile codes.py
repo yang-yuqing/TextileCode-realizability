@@ -9,32 +9,112 @@ class TextileCode:
         self.CrossingNum = i
 
     def BasicValidation(self):
+
         code = self.code
-        new_code = code.replace(" ", "")
-        # print(new_code)
-        basic_pattern = '(([hv][[:digit:]](\\+|-))(\\,)?)+([[:digit:]](\\+|-)?)+'
-        val = False
+
         if len(code) == 0:
             print('Error: No words entered before pressing Return Key.')
-            return val
+            return False
         elif code.endswith(',') == True:
             print('Error: The Gauss paragraph end with a comma.')
-            return val
+            return False
         else:
-            if re.match(basic_pattern, new_code) == None:
-                print('Error: The basic format is not valid.')
-                return val
-            else:
-                val = True
-                print('The basic format is valid.')
-                return val
+            word_set = code.split(", ")
+            for i in range(len(word_set)):
+                symbol_set = word_set[i].split(" ")
+                print('For word ' + str(i + 1) + ', ' + 'symbol Set: ')
+                print(symbol_set)
+
+                for i in range(len(symbol_set)):
+
+                    if len(symbol_set[i]) == 1:
+
+                        if symbol_set[i].isdigit() == False:
+                            print('symbol: ' + symbol_set[
+                                i] + 'is not in the format, input should only h, v, and crossing symbols')
+                            return False
+
+                    elif len(symbol_set[i]) == 2:
+
+                        if symbol_set[i][0].isdigit() == False:
+                            print('symbol: ' + symbol_set[
+                                i] + ' is not in the format, input should only h, v, and crossing symbols')
+                            return False
+
+                        elif symbol_set[i][1] != '+' and symbol_set[i][1] != '-':
+                            print('symbol: ' + symbol_set[
+                                i] + ' is not in the format, input should only h, v, and crossing symbols')
+                            return False
+
+
+                    elif len(symbol_set[i]) == 3:
+
+                        if symbol_set[i][0] != 'h' and symbol_set[i][0] != 'v':
+                            print('symbol: ' + symbol_set[
+                                i] + ' is not in the format, input should only h, v, and crossing symbols')
+                            return False
+
+                    elif len(symbol_set[i]) > 3:
+                        print('symbol: ' + symbol_set[
+                            i] + ' is not in the format, input should only h, v, and crossing symbols')
+                        return False
+
+    def Check_overUndercorssing(self):
+
+        overcrossing = 0
+        undercrossing = 0
+
+        code = self.code
+        word_set = code.split(", ")
+        symbol_set = []
+        for i in range(len(word_set)):
+
+            symbol_set.extend(word_set[i].split(" "))
+
+            # print('For word ' + str(i + 1) + ', ' + 'symbol Set: ')
+            # print(symbol_set)
+
+        # Check total over & undercrossings
+        for symbol in symbol_set:
+            if symbol.isdigit() == True:
+                overcrossing = overcrossing + 1
+            if symbol[0].isdigit() == True and len(symbol) == 2:
+                undercrossing = undercrossing + 1
+        if overcrossing != undercrossing:
+            print('Total number of overcrossing and undercrossing are not equal')
+            return False
+
+        # Check each crossing has only one overcrossing and undercrossing
+        for symbol1 in symbol_set:
+            if symbol1.isdigit() == True:
+                overcrossing = 1
+                undercrossing = 0
+                for symbol2 in symbol_set:
+                    if symbol2 != symbol1:
+                        if symbol2[0] == symbol1:
+                            # print('symbol2: ' + symbol2)
+                            if len(symbol2) == 1:
+                                print('Error: there are more than one overcrossings in the code')
+                                return False
+                            elif len(symbol2) == 2:
+
+                                if symbol2[1] == '+' or symbol2[1] == '-':
+                                    undercrossing = undercrossing + 1
+                                    # print(undercrossing)
+
+                            if undercrossing != overcrossing:
+                                print('For ' + symbol1)
+                                print('over: ' + str(overcrossing) + ', under:' + str(undercrossing))
+
+                                print(
+                                    'The number of overcrossing and undercrossing of crossing ' + symbol1 + ' dose not matched')
 
     def getEdgepair(self):
         code = self.code
         j = self.HorizontalNum
         k = self.VerticalNum
 
-        word_set = code.split(",")
+        word_set = code.split(", ")
         Edgepair_Set = []
         for i in range(len(word_set)):
 
@@ -51,8 +131,6 @@ class TextileCode:
                     Edgepair2 = [symbol_set[0], symbol_set[i], '-']
                     Edgepair_Set.append(Edgepair1)
                     Edgepair_Set.append(Edgepair2)
-
-        
 
         h_set = []
         for i in range(j):
@@ -121,11 +199,68 @@ class TextileCode:
         return Edgepair_Set
 
 
+
+def Get_Crossing_Num(code):
+
+        word_set = code.split(", ")
+        symbol_set = []
+        for i in range(len(word_set)):
+            symbol_set.extend(word_set[i].split(" "))
+
+        overcrossings = []
+        for str in symbol_set:
+            if str.isdigit() == True:
+                overcrossings.append(str)
+        # print(overcrossings)
+        max = 0
+        for i in range(len(overcrossings)):
+            if int(overcrossings[i]) > max:
+                max = int(overcrossings[i])
+        return max
+
+def Get_Horizontal_Num(code):
+
+        word_set = code.split(", ")
+        symbol_set = []
+        for i in range(len(word_set)):
+            symbol_set.extend(word_set[i].split(" "))
+
+        h = []
+        for str in symbol_set:
+            if str[0] == 'h':
+                h.append(str)
+        # print(h)
+        max = 0
+        for i in range(len(h)):
+            if int(h[i][1]) > max:
+                max = int(h[i][1])
+        return max
+
+def Get_Vertical_Num(code):
+
+        word_set = code.split(", ")
+        symbol_set = []
+        for i in range(len(word_set)):
+            symbol_set.extend(word_set[i].split(" "))
+
+        v = []
+        for str in symbol_set:
+            if str[0] == 'v':
+                v.append(str)
+        # print(v)
+        max = 0
+        for i in range(len(v)):
+            if int(v[i][1]) > max:
+                max = int(v[i][1])
+        return max
+
+
 def multiplication(symbol1, symbol2):
     if symbol1 == symbol2:
         return '+'
     else:
         return '-'
+
 def negative(symbol):
     if symbol == '+':
         return '-'
@@ -134,6 +269,7 @@ def negative(symbol):
 
 
 def algorithm(Edgepair_Set, i, j, k):
+
 
     # start cycle count
     cycle = 0
@@ -180,7 +316,6 @@ def algorithm(Edgepair_Set, i, j, k):
                                         outputpair_ = [outputpair[1], outputpair[0], '+']
 
                                     if outputpair_ in CYC:
-                                        break
                                         return False
                                     break
 
@@ -188,7 +323,8 @@ def algorithm(Edgepair_Set, i, j, k):
                     elif inputpair[1][0].isdigit() == True and inputpair[1].isdigit() == False:
                         # print('case: b = i+')
                         for str in Edgepair_Set:
-                            if str[0] == inputpair[1][0] and str[2] == negative(multiplication(inputpair[2],inputpair[1][1])):
+                            if str[0] == inputpair[1][0] and str[2] == negative(
+                                    multiplication(inputpair[2], inputpair[1][1])):
                                 outputpair = str
                                 if outputpair[2] == '+':
                                     outputpair_ = [outputpair[1], outputpair[0], '-']
@@ -196,7 +332,6 @@ def algorithm(Edgepair_Set, i, j, k):
                                     outputpair_ = [outputpair[1], outputpair[0], '+']
 
                                 if outputpair_ in CYC:
-                                    break
                                     return False
                                 break
 
@@ -206,7 +341,7 @@ def algorithm(Edgepair_Set, i, j, k):
                         for str in Edgepair_Set:
 
                             if str[0] == inputpair[1] + '+' or str[0] == inputpair[1] + '-':
-                                if str[2] == multiplication(inputpair[2],str[0][2]):
+                                if str[2] == multiplication(inputpair[2], str[0][2]):
                                     outputpair = str
                                     if outputpair[2] == '+':
                                         outputpair_ = [outputpair[1], outputpair[0], '-']
@@ -214,16 +349,16 @@ def algorithm(Edgepair_Set, i, j, k):
                                         outputpair_ = [outputpair[1], outputpair[0], '+']
 
                                     if outputpair_ in CYC:
-                                        break
                                         return False
-                                    break
+
 
                     # case: b = hj+/-
                     elif inputpair[1][0] == 'h' and inputpair[1][1].isdigit() == True and len(inputpair[1]) == 3:
                         # print('case: b = hj+')
                         for str in Edgepair_Set:
 
-                            if str[0] == inputpair[1][:-1] and str[2] == negative(multiplication(inputpair[2],inputpair[1][2])):
+                            if str[0] == inputpair[1][:-1] and str[2] == negative(
+                                    multiplication(inputpair[2], inputpair[1][2])):
                                 # print('output: [hi,...]')
                                 outputpair = str
                                 if outputpair[2] == '+':
@@ -234,9 +369,8 @@ def algorithm(Edgepair_Set, i, j, k):
                                 # print('find output')
                                 # print(outputpair)
                                 if outputpair_ in CYC:
-                                    break
                                     return False
-                                break
+
 
                     # case: b = vk
                     elif inputpair[1][0] == 'v' and inputpair[1][1].isdigit() == True and len(inputpair[1]) == 2:
@@ -244,7 +378,7 @@ def algorithm(Edgepair_Set, i, j, k):
                         for str in Edgepair_Set:
 
                             if str[0] == inputpair[1] + '+' or str[0] == inputpair[1] + '-':
-                                if str[2] == negative(multiplication(inputpair[2],str[0][2])):
+                                if str[2] == negative(multiplication(inputpair[2], str[0][2])):
                                     outputpair = str
                                     if outputpair[2] == '+':
                                         outputpair_ = [outputpair[1], outputpair[0], '-']
@@ -252,9 +386,8 @@ def algorithm(Edgepair_Set, i, j, k):
                                         outputpair_ = [outputpair[1], outputpair[0], '+']
 
                                     if outputpair_ in CYC:
-                                        break
                                         return False
-                                    break
+
 
                     # case: b = vk+/-
                     elif inputpair[1][0] == 'v' and inputpair[1][1].isdigit() == True and len(inputpair[1]) == 3:
@@ -269,7 +402,6 @@ def algorithm(Edgepair_Set, i, j, k):
                                     outputpair_ = [outputpair[1], outputpair[0], '+']
 
                                 if outputpair_ in CYC:
-                                    break
                                     return False
                                 break
 
@@ -285,7 +417,6 @@ def algorithm(Edgepair_Set, i, j, k):
                                     outputpair_ = [outputpair[1], outputpair[0], '+']
 
                                 if outputpair_ in CYC:
-                                    break
                                     return False
                                 break
 
@@ -293,7 +424,8 @@ def algorithm(Edgepair_Set, i, j, k):
                     elif inputpair[1] == 'c' and re.match(basic_pattern4, inputpair[0]) != None:
                         for str in Edgepair_Set:
 
-                            if str[0] == 'c' and re.match(basic_pattern2, str[1]) != None and str[2] == negative(inputpair[2]):
+                            if str[0] == 'c' and re.match(basic_pattern2, str[1]) != None and str[2] == negative(
+                                    inputpair[2]):
                                 outputpair = str
                                 if outputpair[2] == '+':
                                     outputpair_ = [outputpair[1], outputpair[0], '-']
@@ -301,7 +433,6 @@ def algorithm(Edgepair_Set, i, j, k):
                                     outputpair_ = [outputpair[1], outputpair[0], '+']
 
                                 if outputpair_ in CYC:
-                                    break
                                     return False
                                 break
 
@@ -330,27 +461,45 @@ def algorithm(Edgepair_Set, i, j, k):
                     '''
                     CYC = []
 
-
-
-        return cycle == i+j+k+1
-
+        return cycle == i + j + k + 1
 
 
 print('Input the textile code \nseparate each symbol by a space，'
       'and separate each word by a comma \nfor example: h1+ 1+ 2 v1+ 1 2+')
 code = input('textile code is:')
-i = int(input('Input the number of crossings: '))
-j = int(input('Input the number of horizontal arcs: '))
-k = int(input('Input the number of vertical arcs: '))
 
-textile = TextileCode(code, i, j, k)
+i = Get_Crossing_Num(code)
+j = Get_Horizontal_Num(code)
+k = Get_Vertical_Num(code)
+
+textile = TextileCode(code,i, j, k)
+
 Edgepair_Set = textile.getEdgepair()
+
 # print(Edgepair_Set)
 # print(len(Edgepair_Set))
 
+if textile.BasicValidation() != False:
+    print('The basic format is valid.')
+
+    if textile.Check_overUndercorssing() != False:
+        print('Number of overcrossing and undercrossing are equal')
+
+        if algorithm(Edgepair_Set, i, j, k) == True:
+
+            print('cycle = max(i) + max(j) + max(k) +1, ie., the Euler characteristic is 0 ')
+            print('The input code is realizable')
+        else:
+            print('The input code is not realizable')
 
 
-if textile.BasicValidation() == True:
-    print(algorithm(Edgepair_Set, i, j, k))
-
-    
+'''
+test
+-realizable
+ 1. h1+ 1+ 2 v1+ 1 2+
+ 2. h1+ 1 2- h2- v2+ 3- 1- 2 v1+ 3
+ 3. h1+ 1 v2- 2+, h2+ v1+ 1- 2
+-not realizable
+ 1. h1+ 1 v1- 1+
+ 2. h1+ 1 2- v2- 3 2, v1+ 1- h2- 3+
+'''
